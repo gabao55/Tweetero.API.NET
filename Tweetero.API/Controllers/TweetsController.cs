@@ -1,12 +1,30 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Tweetero.API.Entities;
+using Tweetero.API.Models;
+using Tweetero.API.Repository;
 
 namespace Tweetero.API.Controllers
 {
+    [Route("api/tweets")]
+    [ApiController]
     public class TweetsController : Controller
     {
-        public IActionResult Index()
+        private readonly ITweeteroRepository _repository;
+        private readonly IMapper _mapper;
+
+        public TweetsController(ITweeteroRepository repository, IMapper mapper)
         {
-            return View();
+            _repository = repository;
+            _mapper = mapper;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<TweetDto>>> GetTweets()
+        {
+            IEnumerable<Tweet> tweets = await _repository.GetTweetsAsync();
+
+            return Ok(_mapper.Map<IEnumerable<TweetDto>>(tweets));
         }
     }
 }

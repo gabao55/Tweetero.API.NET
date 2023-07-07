@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Tweetero.API.DbContexts;
+using Tweetero.API.Profiles;
+using Tweetero.API.Repository;
+using Tweetero.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +24,10 @@ builder.Services.AddDbContext<TweeteroContext>(
         builder.Configuration["ConnectionStrings:TweeteroDBConnectionString"]
         )
     );
+
+builder.Services.AddScoped<ITweeteroRepository, TweeteroRepository>();
+
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
 
