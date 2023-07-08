@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 using Tweetero.API.Entities;
 using Tweetero.API.Models;
 using Tweetero.API.Repository;
+using Tweetero.API.Services;
 
 namespace Tweetero.API.Controllers
 {
@@ -12,6 +14,7 @@ namespace Tweetero.API.Controllers
     {
         private readonly ITweeteroRepository _repository;
         private readonly IMapper _mapper;
+        const int maxTweetsPageSize = 50;
 
         public TweetsController(ITweeteroRepository repository, IMapper mapper)
         {
@@ -20,9 +23,14 @@ namespace Tweetero.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TweetDto>>> GetTweets()
+        public async Task<ActionResult<IEnumerable<TweetDto>>> GetTweets([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20)
         {
-            IEnumerable<Tweet> tweets = await _repository.GetTweetsAsync();
+            if (pageSize > maxTweetsPageSize) pageSize = maxTweetsPageSize;
+
+            (IEnumerable<Tweet> tweets, PaginationMetadata paginationMetadata) = await _repository.GetTweetsAsync(pageNumber, pageSize);
+
+            Response.Headers.Add("X-Pagination",
+                JsonSerializer.Serialize(paginationMetadata));
 
             return Ok(_mapper.Map<IEnumerable<TweetDto>>(tweets));
         }

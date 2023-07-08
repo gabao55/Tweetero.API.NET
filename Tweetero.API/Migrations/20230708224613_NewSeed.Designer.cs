@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Tweetero.API.DbContexts;
 
@@ -10,9 +11,11 @@ using Tweetero.API.DbContexts;
 namespace Tweetero.API.Migrations
 {
     [DbContext(typeof(TweeteroContext))]
-    partial class TweeteroContextModelSnapshot : ModelSnapshot
+    [Migration("20230708224613_NewSeed")]
+    partial class NewSeed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

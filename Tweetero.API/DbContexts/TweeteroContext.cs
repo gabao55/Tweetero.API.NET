@@ -23,6 +23,13 @@ namespace Tweetero.API.DbContexts
                         Username = "test",
                         Password = "123456",
                         Avatar = "https://www.racoesreis.com.br/wordpress/wp-content/uploads/cachorro-origem3.jpg"
+                    },
+                    new User()
+                    {
+                        Id = 2,
+                        Username = "test2",
+                        Password = "123456",
+                        Avatar = "https://www.racoesreis.com.br/wordpress/wp-content/uploads/cachorro-origem3.jpg"
                     }
                 );
             modelBuilder.Entity<Tweet>()
@@ -36,6 +43,11 @@ namespace Tweetero.API.DbContexts
                     {
                         Id = 2,
                         UserId = 1
+                    },
+                    new Tweet("Testing second user")
+                    {
+                        Id = 3,
+                        UserId = 2
                     }
                 );
         }
