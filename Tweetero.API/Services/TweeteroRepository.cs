@@ -13,9 +13,13 @@ namespace Tweetero.API.Services
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<IEnumerable<Tweet>> GetTweetsAsync()
+        public async Task<IEnumerable<Tweet>> GetTweetsAsync() => await _context.Tweets.Include(t => t.User).ToListAsync();
+
+        public async Task<User?> GetUserAsync(int userId) => await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+        public async Task<IEnumerable<Tweet>> GetUserTweetsAsync(int userId)
         {
-            return await _context.Tweets.Include(t => t.User).ToListAsync();
+            return await _context.Tweets.Include(t => t.User).Where(t => t.UserId == userId).ToListAsync();
         }
     }
 }

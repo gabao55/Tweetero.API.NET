@@ -26,5 +26,18 @@ namespace Tweetero.API.Controllers
 
             return Ok(_mapper.Map<IEnumerable<TweetDto>>(tweets));
         }
+
+        [HttpGet("{userId}")]
+        public async Task<ActionResult<IEnumerable<TweetDto>>> GetUserTweets(int userId)
+        {
+            if (await _repository.GetUserAsync(userId) == null)
+            {
+                return NotFound();
+            }
+
+            IEnumerable<Tweet> tweets = await _repository.GetUserTweetsAsync(userId);
+
+            return Ok(_mapper.Map<IEnumerable<TweetDto>>(tweets));
+        }
     }
 }
