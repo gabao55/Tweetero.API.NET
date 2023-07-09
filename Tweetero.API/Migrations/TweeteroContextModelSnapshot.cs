@@ -73,13 +73,11 @@ namespace Tweetero.API.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Avatar")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Username")
                         .IsRequired()
@@ -95,14 +93,14 @@ namespace Tweetero.API.Migrations
                         {
                             Id = 1,
                             Avatar = "https://www.racoesreis.com.br/wordpress/wp-content/uploads/cachorro-origem3.jpg",
-                            Password = "123456",
+                            Password = "AQAAAAEAACcQAAAAEBfUqsmn6PYi0kBuwDKnFIRi4Jp9lGOg04DDOB7pnSOQLPQQLsqNkyWJfgjsb6B2gw==",
                             Username = "test"
                         },
                         new
                         {
                             Id = 2,
                             Avatar = "https://www.racoesreis.com.br/wordpress/wp-content/uploads/cachorro-origem3.jpg",
-                            Password = "123456",
+                            Password = "AQAAAAEAACcQAAAAEEInRuW4i8YHtX6v2hCLT1aCfK8u0+1yfdO+v4r/FVh5D0RjucaijvArS8jdWTZuWw==",
                             Username = "test2"
                         });
                 });

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Tweetero.API.Entities;
 
 namespace Tweetero.API.DbContexts
@@ -7,6 +8,7 @@ namespace Tweetero.API.DbContexts
     {
         public DbSet<Tweet> Tweets { get; set; }
         public DbSet<User> Users { get; set; }
+        private readonly PasswordHasher<string> _passwordHasher = new();
 
         public TweeteroContext(DbContextOptions<TweeteroContext> options) : base(options)
         {
@@ -21,14 +23,14 @@ namespace Tweetero.API.DbContexts
                     {
                         Id = 1,
                         Username = "test",
-                        Password = "123456",
+                        Password = _passwordHasher.HashPassword("test", "123456"),
                         Avatar = "https://www.racoesreis.com.br/wordpress/wp-content/uploads/cachorro-origem3.jpg"
                     },
                     new User()
                     {
                         Id = 2,
                         Username = "test2",
-                        Password = "123456",
+                        Password = _passwordHasher.HashPassword("test2", "123456"),
                         Avatar = "https://www.racoesreis.com.br/wordpress/wp-content/uploads/cachorro-origem3.jpg"
                     }
                 );

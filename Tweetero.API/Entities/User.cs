@@ -12,10 +12,8 @@ namespace Tweetero.API.Entities
         [MaxLength(50)]
         public string Username { get; set; }
         [Required]
-        [MaxLength(50)]
-        [MinLength(6)]
         public string Password { get; set; }
-        public string Avatar { get; set; }
+        public string? Avatar { get; set; }
         public ICollection<Tweet> Tweets { get; set; }
             = new List<Tweet>();
     }

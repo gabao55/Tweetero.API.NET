@@ -7,7 +7,7 @@
 namespace Tweetero.API.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class SetsAuthentication : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,8 +19,8 @@ namespace Tweetero.API.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Username = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Avatar = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Avatar = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -50,7 +50,11 @@ namespace Tweetero.API.Migrations
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "Id", "Avatar", "Password", "Username" },
-                values: new object[] { 1, "https://www.racoesreis.com.br/wordpress/wp-content/uploads/cachorro-origem3.jpg", "123456", "test" });
+                values: new object[,]
+                {
+                    { 1, "https://www.racoesreis.com.br/wordpress/wp-content/uploads/cachorro-origem3.jpg", "AQAAAAEAACcQAAAAEBfUqsmn6PYi0kBuwDKnFIRi4Jp9lGOg04DDOB7pnSOQLPQQLsqNkyWJfgjsb6B2gw==", "test" },
+                    { 2, "https://www.racoesreis.com.br/wordpress/wp-content/uploads/cachorro-origem3.jpg", "AQAAAAEAACcQAAAAEEInRuW4i8YHtX6v2hCLT1aCfK8u0+1yfdO+v4r/FVh5D0RjucaijvArS8jdWTZuWw==", "test2" }
+                });
 
             migrationBuilder.InsertData(
                 table: "Tweets",
@@ -58,7 +62,8 @@ namespace Tweetero.API.Migrations
                 values: new object[,]
                 {
                     { 1, "I love crunchy lettuce!", 1 },
-                    { 2, "I hate when I get alone... :(", 1 }
+                    { 2, "I hate when I get alone... :(", 1 },
+                    { 3, "Testing second user", 2 }
                 });
 
             migrationBuilder.CreateIndex(

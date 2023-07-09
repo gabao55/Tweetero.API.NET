@@ -11,8 +11,8 @@ using Tweetero.API.DbContexts;
 namespace Tweetero.API.Migrations
 {
     [DbContext(typeof(TweeteroContext))]
-    [Migration("20230705114615_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20230709133834_SetsAuthentication")]
+    partial class SetsAuthentication
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -58,6 +58,12 @@ namespace Tweetero.API.Migrations
                             Id = 2,
                             Message = "I hate when I get alone... :(",
                             UserId = 1
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Message = "Testing second user",
+                            UserId = 2
                         });
                 });
 
@@ -70,13 +76,11 @@ namespace Tweetero.API.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Avatar")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Username")
                         .IsRequired()
@@ -92,8 +96,15 @@ namespace Tweetero.API.Migrations
                         {
                             Id = 1,
                             Avatar = "https://www.racoesreis.com.br/wordpress/wp-content/uploads/cachorro-origem3.jpg",
-                            Password = "123456",
+                            Password = "AQAAAAEAACcQAAAAEBfUqsmn6PYi0kBuwDKnFIRi4Jp9lGOg04DDOB7pnSOQLPQQLsqNkyWJfgjsb6B2gw==",
                             Username = "test"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Avatar = "https://www.racoesreis.com.br/wordpress/wp-content/uploads/cachorro-origem3.jpg",
+                            Password = "AQAAAAEAACcQAAAAEEInRuW4i8YHtX6v2hCLT1aCfK8u0+1yfdO+v4r/FVh5D0RjucaijvArS8jdWTZuWw==",
+                            Username = "test2"
                         });
                 });
 
