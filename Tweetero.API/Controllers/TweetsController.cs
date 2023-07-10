@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using Tweetero.API.Entities;
 using Tweetero.API.Models;
 using Tweetero.API.Repository;
 using Tweetero.API.Services;
+using System.Net;
 
 namespace Tweetero.API.Controllers
 {
@@ -46,6 +49,47 @@ namespace Tweetero.API.Controllers
             IEnumerable<Tweet> tweets = await _repository.GetUserTweetsAsync(userId);
 
             return Ok(_mapper.Map<IEnumerable<TweetDto>>(tweets));
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> CreateTweet([FromBody] TweetForCreationDto tweet)
+        {
+            if (!ModelState.IsValid)
+            {
+                IEnumerable<string> errorMessages = ModelState.Values.
+                                                    SelectMany(v => v.Errors)
+                                                    .Select(e => e.ErrorMessage);
+
+                return BadRequest(errorMessages);
+            }
+
+            string userId = User.Claims.FirstOrDefault(u => u.Type == "id")?.Value;
+
+            if (userId == null)
+                return BadRequest("Missing User Id in header");
+
+            User user = await _repository.GetUserAsync(int.Parse(userId));
+
+            if (user == null) return NotFound("User not found");
+
+            try
+            {
+                Tweet createdTweet = await _repository.CreateTweet(tweet.Message, user);
+
+                bool changesSaved = await _repository.SaveChangesAsync();
+
+                if (!changesSaved && createdTweet != null) 
+                    throw new Exception("The tweet could not be created, try again soon");
+
+                TweetDto tweetToReturn = _mapper.Map<TweetDto>(createdTweet);
+
+                return Created($"api/tweets/{userId}", tweetToReturn);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
     }
 }

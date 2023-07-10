@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Tweetero.API.DbContexts;
 using Tweetero.API.Entities;
+using Tweetero.API.Models;
 using Tweetero.API.Repository;
 
 namespace Tweetero.API.Services
@@ -33,6 +34,18 @@ namespace Tweetero.API.Services
         public async Task<IEnumerable<Tweet>> GetUserTweetsAsync(int userId)
         {
             return await _context.Tweets.Include(t => t.User).Where(t => t.UserId == userId).ToListAsync();
+        }
+
+        public async Task<Tweet> CreateTweet(string message, User user)
+        {
+            user.Tweets.Add(new Tweet(message));
+
+            return user.Tweets.Last();
+        }
+
+        public async Task<bool> SaveChangesAsync()
+        {
+            return (await _context.SaveChangesAsync() >= 0);
         }
     }
 }
