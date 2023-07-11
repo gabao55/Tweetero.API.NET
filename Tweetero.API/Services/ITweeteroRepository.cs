@@ -11,5 +11,7 @@ namespace Tweetero.API.Repository
         Task<User> GetUserAsync(int userId);
         Task<Tweet> CreateTweet(string message, User user);
         Task<bool> SaveChangesAsync();
+        Task<Tweet?> GetUserTweetAsync(int userId, int tweetId);
+        void DeleteTweet(Tweet tweet);
     }
 }

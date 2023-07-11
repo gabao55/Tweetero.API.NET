@@ -8,6 +8,7 @@ namespace Tweetero.API.Profiles
             CreateMap<Entities.Tweet, Models.TweetDto>()
                 .ForMember(tweetDto => tweetDto.Username, opt => opt.MapFrom(tweet => tweet.User.Username))
                 .ForMember(tweetDto => tweetDto.Avatar, opt => opt.MapFrom(tweet => tweet.User.Avatar));
+            CreateMap<Models.TweetForUpdateDto, Entities.Tweet>();
         }
     }
 }

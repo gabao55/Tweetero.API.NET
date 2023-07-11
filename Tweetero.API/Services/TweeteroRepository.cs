@@ -43,6 +43,18 @@ namespace Tweetero.API.Services
             return user.Tweets.OrderBy(t => t.Id).Last();
         }
 
+        public async Task<Tweet?> GetUserTweetAsync(int userId, int tweetId)
+        {
+            return await _context.Tweets
+                                 .Include(t => t.User)
+                                 .FirstOrDefaultAsync(t => t.Id == tweetId && t.UserId == userId);
+        }
+
+        public void DeleteTweet(Tweet tweet)
+        {
+            _context.Tweets.Remove(tweet);
+        }
+
         public async Task<bool> SaveChangesAsync()
         {
             return (await _context.SaveChangesAsync() >= 0);

@@ -65,7 +65,7 @@ namespace Tweetero.API.Controllers
                 return BadRequest(errorMessages);
             }
 
-            string userId = User.Claims.FirstOrDefault(u => u.Type == "id")?.Value;
+            string? userId = User.Claims.FirstOrDefault(u => u.Type == "id")?.Value;
 
             if (userId == null)
                 return BadRequest("Missing User Id in header");
@@ -86,6 +86,70 @@ namespace Tweetero.API.Controllers
                 TweetDto tweetToReturn = _mapper.Map<TweetDto>(createdTweet);
 
                 return Created($"api/tweets/{userId}", tweetToReturn);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpPut("{tweetId}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateTweet(int tweetId,
+            [FromBody] TweetForUpdateDto tweetForUpdate)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            string? userId = User.Claims.FirstOrDefault(u => u.Type == "id")?.Value;
+
+            if (userId == null)
+                return BadRequest("Missing User Id in header");
+
+            Tweet? tweet = await _repository.GetUserTweetAsync(int.Parse(userId), tweetId);
+
+            if (tweet == null) return NotFound();
+
+            try
+            {
+                _mapper.Map(tweetForUpdate, tweet);
+
+                bool changesSaved = await _repository.SaveChangesAsync();
+
+                if (!changesSaved)
+                    throw new Exception("The tweet could not be created, try again soon");
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpDelete("{tweetId}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteTweet([FromRoute] int tweetId)
+        {
+            string? userId = User.Claims.FirstOrDefault(u => u.Type == "id")?.Value;
+
+            if (userId == null)
+                return BadRequest("Missing User Id in header");
+
+            Tweet? tweet = await _repository.GetUserTweetAsync(int.Parse(userId), tweetId);
+
+            if (tweet == null) return NotFound();
+
+            try
+            {
+                _repository.DeleteTweet(tweet);
+
+                bool changesSaved = await _repository.SaveChangesAsync();
+
+                if (!changesSaved)
+                    throw new Exception("The tweet could not be created, try again soon");
+
+                return Accepted();
             }
             catch (Exception ex)
             {
