@@ -8,6 +8,7 @@ using Tweetero.API.Models;
 using Tweetero.API.Repository;
 using Tweetero.API.Services;
 using System.Net;
+using Microsoft.Extensions.Configuration;
 
 namespace Tweetero.API.Controllers
 {
@@ -21,8 +22,8 @@ namespace Tweetero.API.Controllers
 
         public TweetsController(ITweeteroRepository repository, IMapper mapper)
         {
-            _repository = repository;
-            _mapper = mapper;
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet]
@@ -79,7 +80,7 @@ namespace Tweetero.API.Controllers
 
                 bool changesSaved = await _repository.SaveChangesAsync();
 
-                if (!changesSaved && createdTweet != null) 
+                if (!changesSaved && createdTweet == null) 
                     throw new Exception("The tweet could not be created, try again soon");
 
                 TweetDto tweetToReturn = _mapper.Map<TweetDto>(createdTweet);

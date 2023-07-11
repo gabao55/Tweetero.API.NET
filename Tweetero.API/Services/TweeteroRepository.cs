@@ -40,7 +40,7 @@ namespace Tweetero.API.Services
         {
             user.Tweets.Add(new Tweet(message));
 
-            return user.Tweets.Last();
+            return user.Tweets.OrderBy(t => t.Id).Last();
         }
 
         public async Task<bool> SaveChangesAsync()

@@ -2,9 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 using Tweetero.API.Entities;
+using Tweetero.API.Models;
+using Tweetero.API.Repository;
 using Tweetero.API.Services;
 
 namespace Tweetero.API.Controllers
@@ -16,15 +19,17 @@ namespace Tweetero.API.Controllers
         private readonly IConfiguration _configuration;
         private readonly IAuthenticationRepository _repository;
         private readonly PasswordHasher<string> _passwordHasher = new();
-        public class AuthenticationRequestBody
-        {
-            public string? Username { get; set; }
-            public string? Password { get; set; }
-        }
-        public class RegistrationRequestBody
+
+        public abstract class RequestBody
         {
             public string Username { get; set; }
             public string Password { get; set; }
+        }
+        public class AuthenticationRequestBody : RequestBody
+        {
+        }
+        public class RegistrationRequestBody : RequestBody
+        {
             public string? Avatar { get; set; }
         }
 
@@ -35,10 +40,11 @@ namespace Tweetero.API.Controllers
             public string? Avatar { get; set; }
         }
 
-        public AuthenticationController(IConfiguration configuration, IAuthenticationRepository repository)
+        public AuthenticationController(IConfiguration configuration,
+            IAuthenticationRepository repository)
         {
-            _configuration = configuration;
-            _repository = repository;
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
         [HttpPost("authenticate")]
@@ -56,6 +62,35 @@ namespace Tweetero.API.Controllers
                 return Unauthorized("Username or password invalid");
             }
 
+            string tokenToReturn = GenerateToken(user);
+
+            return Ok(tokenToReturn);
+        }
+
+        private bool IsBodyValid(RequestBody body)
+        {
+            if (body == null ||
+                String.IsNullOrEmpty(body.Username) ||
+                String.IsNullOrEmpty(body.Password)) return false;
+
+            return true;
+        }
+
+        private async Task<User?> ValidateCredentials(string username, string password)
+        {
+            User user = await _repository.ValidateUser(username);
+
+            if (user == null) return null;
+
+            PasswordVerificationResult passwordVerificationResult = _passwordHasher.VerifyHashedPassword(user.Username, user.Password, password);
+
+            if (passwordVerificationResult != PasswordVerificationResult.Success) return null;
+
+            return user;
+        }
+
+        private string GenerateToken(User user)
+        {
             SymmetricSecurityKey securityKey = new(
                 Encoding.ASCII.GetBytes(_configuration["Authentication:SecretForKey"]));
             SigningCredentials signingCredentials = new(
@@ -77,29 +112,43 @@ namespace Tweetero.API.Controllers
             string tokenToReturn = new JwtSecurityTokenHandler()
                 .WriteToken(jwtToken);
 
-            return Ok(tokenToReturn);
+            return tokenToReturn;
         }
 
-        private bool IsBodyValid(AuthenticationRequestBody body)
+        [HttpPost("register")]
+        public async Task<ActionResult<string>> RegisterUser([FromBody] RegistrationRequestBody body)
         {
-            if (body == null ||
-                String.IsNullOrEmpty(body.Username) ||
-                String.IsNullOrEmpty(body.Password)) return false;
+            if (!IsBodyValid(body))
+            {
+                return BadRequest("Please provide valid username and password");
+            }
 
-            return true;
-        }
+            if (await _repository.UserExists(body.Username))
+            {
+                return Conflict("Username already taken, please try a different one!");
+            }
 
-        private async Task<User?> ValidateCredentials(string username, string password)
-        {
-            User user = await _repository.ValidateUser(username);
+            string hashedPassword = _passwordHasher.HashPassword(body.Username, body.Password);
 
-            if (user == null) return null;
+            User newUser = new()
+            {
+                Username = body.Username,
+                Password = hashedPassword,
+                Avatar = body.Avatar
+            };
 
-            PasswordVerificationResult passwordVerificationResult = _passwordHasher.VerifyHashedPassword(user.Username, user.Password, password);
+            try
+            {
+                newUser = await _repository.CreateUser(newUser);
 
-            if (passwordVerificationResult != PasswordVerificationResult.Success) return null;
+                string tokenToReturn = GenerateToken(newUser);
 
-            return user;
+                return Created("api/authentication/register", tokenToReturn);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
     }
 }
