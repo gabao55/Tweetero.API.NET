@@ -47,6 +47,24 @@ namespace Tweetero.API.Controllers
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
+        /// <summary>
+        /// Gets user credentials and authenticate it
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     POST api/authentication/authenticate
+        ///     {
+        ///         "username": "test2",
+        ///         "password": "123456"
+        ///     }
+        /// Sample response:
+        /// 
+        ///     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjIiLCJ1c2VybmFtZSI6InRlc3QyIiwiYXZhdGFyIjoiaHR0cHM6Ly93d3cucmFjb2VzcmVpcy5jb20uYnIvd29yZHByZXNzL3dwLWNvbnRlbnQvdXBsb2Fkcy9jYWNob3Jyby1vcmlnZW0zLmpwZyIsIm5iZiI6MTY4OTU5MjczNCwiZXhwIjoxNjg5NTk5OTM0LCJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo3MTU2IiwiYXVkIjoidHdlZXRlcm9hcGkifQ.pSDrYJ3Vx9vjlztk0q0KR7nkCdWz5HKOqwqUG_eOvsg"
+        /// 
+        /// </remarks>
+        /// <response code="200">Authentication token</response>
+        /// <response code="401">User unauthorized (credentials wrong)</response>
         [HttpPost("authenticate")]
         public async Task<ActionResult<string>> Authenticate([FromBody] AuthenticationRequestBody body)
         {

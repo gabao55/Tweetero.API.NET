@@ -5,6 +5,7 @@ using Tweetero.API.Services;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +20,11 @@ builder.Services.AddControllers(options =>
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    string xmlPath = Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml");
+    options.IncludeXmlComments(xmlPath);
+});
 
 builder.Services.AddDbContext<TweeteroContext>(
     DbContextOptions => DbContextOptions.UseSqlServer(
